@@ -19,7 +19,6 @@ class LoadingButton @JvmOverloads constructor(
 
     }
 
-
     init {
 
     }
