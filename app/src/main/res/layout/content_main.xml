@@ -22,6 +22,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <RadioGroup
+        android:id="@+id/download_options_radio_group"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@+id/custom_button"
@@ -40,7 +41,7 @@
             android:layout_marginBottom="@dimen/default_margin"/>
 
         <RadioButton
-            android:id="@+id/load_app_radio_button"
+            android:id="@+id/udacity_radio_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/load_app_text"
