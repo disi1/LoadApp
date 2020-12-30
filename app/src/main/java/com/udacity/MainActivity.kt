@@ -7,18 +7,17 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.database.Cursor
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.util.Log
-import android.widget.RadioButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
+import com.udacity.utils.sendNotification
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
-import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
@@ -77,9 +76,11 @@ class MainActivity : AppCompatActivity() {
                             val title = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_TITLE))
                             if (status == DownloadManager.STATUS_SUCCESSFUL) {
                                custom_button.setDownloadButtonState(ButtonState.Completed)
+                                sendNotification(title, "Success", context!!)
                                 cursor.close()
                             } else {
                                custom_button.setDownloadButtonState(ButtonState.Completed)
+                                sendNotification(title, "Fail", context!!)
                                 cursor.close()
                             }
                         }
@@ -90,23 +91,40 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun download() {
-        if(selectedRepo != null) {
-            custom_button.setDownloadButtonState(ButtonState.Loading)
+        if(isNetworkAvailable(this)) {
+            if(selectedRepo != null) {
+                custom_button.setDownloadButtonState(ButtonState.Loading)
 
-            val request =
-                    DownloadManager.Request(Uri.parse(selectedRepo))
-                            .setTitle(selectedOption)
-                            .setDescription(getString(R.string.app_description))
-                            .setRequiresCharging(false)
-                            .setAllowedOverMetered(true)
-                            .setAllowedOverRoaming(true)
+                val request =
+                        DownloadManager.Request(Uri.parse(selectedRepo))
+                                .setTitle(selectedOption)
+                                .setDescription(getString(R.string.app_description))
+                                .setRequiresCharging(false)
+                                .setAllowedOverMetered(true)
+                                .setAllowedOverRoaming(true)
 
-            val downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
-            downloadID =
-                    downloadManager.enqueue(request)// enqueue puts the download request in the queue.
+                val downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
+                downloadID =
+                        downloadManager.enqueue(request)// enqueue puts the download request in the queue.
+            } else {
+                custom_button.setDownloadButtonState(ButtonState.Completed)
+                Toast.makeText(this, R.string.no_selection_hint, Toast.LENGTH_SHORT).show()
+            }
         } else {
-            custom_button.setDownloadButtonState(ButtonState.Completed)
-            Toast.makeText(this, R.string.no_selection_hint, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Network not available!\nCheck your internet connection and try again.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun isNetworkAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return when {
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) -> true
+            else -> false
         }
     }
 

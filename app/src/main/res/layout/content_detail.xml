@@ -15,7 +15,7 @@
         android:textSize="@dimen/default_text_size"
         app:layout_constraintStart_toStartOf="@id/guideline"
         app:layout_constraintTop_toTopOf="@id/guideline2"
-        tools:text="File name:" />
+        android:text="@string/file_name_label" />
 
     <TextView
         android:id="@+id/file_name_value"
@@ -29,15 +29,17 @@
         tools:text="Glide - Image Loading Library by BumpTech"/>
 
     <TextView
+        android:id="@+id/download_status_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/default_text_size"
         android:layout_marginTop="@dimen/default_margin"
-        app:layout_constraintTop_toBottomOf="@id/file_name_value"
+        android:textSize="@dimen/default_text_size"
         app:layout_constraintStart_toStartOf="@id/guideline"
-        tools:text="Status:"/>
+        app:layout_constraintTop_toBottomOf="@id/file_name_value"
+        android:text="@string/status_label" />
 
     <TextView
+        android:id="@+id/download_status_value"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
@@ -68,5 +70,17 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="@dimen/default_margin"/>
+
+    <Button
+        android:id="@+id/ok_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/default_margin"
+        android:backgroundTint="@color/colorAccent"
+        android:text="@string/ok"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

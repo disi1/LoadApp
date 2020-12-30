@@ -5,13 +5,14 @@
 
 
     <string name="notification_title">Udacity: Android Kotlin Nanodegree </string>
-    <string name="notification_description">The Project 3 repository is downloaded</string>
+    <string name="notification_description">The %1$s repository is downloaded</string>
     <string name="notification_button">See changes</string>
+    <string name="repo_download_channel_description">Repository download</string>
+    <string name="repo_download_channel_id">repository_download_channel</string>
+    <string name="repo_download_channel_name">Repository download</string>
 
     <string name="download">Download</string>
-    <string name="loading">We are loading</string>
     <string name="no_selection_hint">Please select the file to download</string>
-
     <string name="button_name">Click me</string>
     <string name="button_loading">We are loading </string>
     <string name="title_activity_detail">DetailActivity</string>
@@ -20,4 +21,7 @@
     <string name="load_app_text">LoadApp - Current repository by Udacity</string>
     <string name="retrofit_text">Retrofit - Type-safe HTTP client for Android and Java by Square, Inc.</string>
     <string name="ok">OK</string>
+    <string name="check_status_button">Check the status</string>
+    <string name="file_name_label">File name:</string>
+    <string name="status_label">Status:</string>
 </resources>

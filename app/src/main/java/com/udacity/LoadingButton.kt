@@ -48,7 +48,7 @@ class LoadingButton @JvmOverloads constructor(
                     start()
                 }
 
-                buttonText = resources.getString(R.string.loading)
+                buttonText = resources.getString(R.string.button_loading)
                 buttonBckgColor = downloadBtnBckgColorLoadingState
                 invalidate()
             }
