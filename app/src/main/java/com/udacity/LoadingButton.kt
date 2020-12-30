@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.util.AttributeSet
@@ -40,7 +41,7 @@ class LoadingButton @JvmOverloads constructor(
                 valueAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
                     setAnimatorListeners()
 
-                    repeatCount = 1
+                    repeatCount = ValueAnimator.INFINITE
                     repeatMode = ValueAnimator.REVERSE
                     duration = 2000
 
@@ -87,9 +88,14 @@ class LoadingButton @JvmOverloads constructor(
     private val defaultBackgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = downloadBtnBckgColorDefaultState
     }
+    private val loadingArcPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = downloadBtnCircleColor
+    }
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
+
+        val cornerRadius = 25.0f
 
         canvas?.drawColor(buttonBckgColor)
 
@@ -100,8 +106,21 @@ class LoadingButton @JvmOverloads constructor(
         canvas?.drawRect(0f, 0f, widthSize.toFloat(), heightSize.toFloat(), defaultBackgroundPaint)
 
         if(buttonState == ButtonState.Loading) {
-            val progressVal = progress * widthSize.toFloat()
+            var progressVal = progress * widthSize.toFloat()
             canvas?.drawRect(0f, 0f, progressVal, heightSize.toFloat(), loadingBackgroundPaint)
+
+            val arcDiameter = cornerRadius * 2
+            val arcRectSize = measuredHeight.toFloat() - paddingBottom.toFloat() - arcDiameter
+
+            progressVal = progress * 360f
+            canvas?.drawArc(paddingStart.toFloat() + arcDiameter,
+                    paddingTop.toFloat() + arcDiameter,
+                    arcRectSize,
+                    arcRectSize,
+                    0f,
+                    progressVal,
+                    true,
+                    loadingArcPaint)
         }
 
         canvas?.drawText(buttonText, centerX, centerY , textPaint)
