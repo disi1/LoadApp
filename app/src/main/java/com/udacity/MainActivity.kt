@@ -5,15 +5,12 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
-import android.util.Log
-import android.util.Patterns
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.udacity.utils.downloadFile
+import com.udacity.utils.isNetworkAvailable
+import com.udacity.utils.isUrlValid
 import com.udacity.utils.sendNotification
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
@@ -70,7 +67,6 @@ class MainActivity : AppCompatActivity() {
                         if (cursor.count > 0) {
                             val status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
                             val title = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_TITLE))
-                            Log.i("aa", "title: $title")
                             if (status == DownloadManager.STATUS_SUCCESSFUL) {
                                custom_button.setDownloadButtonState(ButtonState.Completed)
                                 sendNotification(title, "Success", context!!)
@@ -89,54 +85,44 @@ class MainActivity : AppCompatActivity() {
 
     private fun download() {
         if(isNetworkAvailable(this)) {
-            if(custom_url_edit_text.text.toString().isNotEmpty()) {
-                if(isUrlValid(custom_url_edit_text.text.toString().toLowerCase(Locale.ROOT))) {
-                    val request = downloadFile(getString(R.string.custom_file), custom_url_edit_text.text.toString())
-
-                    val downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
-                    downloadID =
-                            downloadManager.enqueue(request)// enqueue puts the download request in the queue.
-                } else {
-                    Toast.makeText(this, getString(R.string.url_not_valid_hint), Toast.LENGTH_SHORT).show()
+            when {
+                custom_url_edit_text.text.toString().isNotEmpty() -> {
+                    downloadFromCustomUrl(custom_url_edit_text.text.toString())
                 }
-            }
-            else if(selectedRepo != null) {
-                custom_button.setDownloadButtonState(ButtonState.Loading)
-
-                val request = downloadFile(selectedOption!!, selectedRepo!!)
-
-                val downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
-                downloadID =
-                        downloadManager.enqueue(request)// enqueue puts the download request in the queue.
-            } else {
-                custom_button.setDownloadButtonState(ButtonState.Completed)
-                Toast.makeText(this, R.string.no_selection_hint, Toast.LENGTH_SHORT).show()
+                selectedRepo != null -> {
+                    downloadFromChosenUrl()
+                }
+                else -> {
+                    custom_button.setDownloadButtonState(ButtonState.Completed)
+                    Toast.makeText(this, R.string.no_selection_hint, Toast.LENGTH_SHORT).show()
+                }
             }
         } else {
             Toast.makeText(this, R.string.network_unavailable_hint, Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun isUrlValid(url: String) =
-            Patterns.WEB_URL.matcher(url).matches()
+    private fun downloadFromChosenUrl() {
+        custom_button.setDownloadButtonState(ButtonState.Loading)
 
-    private fun downloadFile(fileTitle: String, url: String) = DownloadManager.Request(Uri.parse(url))
-            .setTitle(fileTitle)
-            .setDescription(getString(R.string.app_description))
-            .setRequiresCharging(false)
-            .setAllowedOverMetered(true)
-            .setAllowedOverRoaming(true)
+        val request = downloadFile(selectedOption!!, selectedRepo!!, this)
 
-    private fun isNetworkAvailable(context: Context): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork ?: return false
-        val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return when {
-            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) -> true
-            else -> false
+        val downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
+        downloadID =
+                downloadManager.enqueue(request)// enqueue puts the download request in the queue.
+    }
+
+    private fun downloadFromCustomUrl(url: String) {
+        if (isUrlValid(url.toLowerCase(Locale.ROOT))) {
+            custom_button.setDownloadButtonState(ButtonState.Loading)
+
+            val request = downloadFile(getString(R.string.custom_file), url, this)
+
+            val downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
+            downloadID =
+                    downloadManager.enqueue(request)// enqueue puts the download request in the queue.
+        } else {
+            Toast.makeText(this, getString(R.string.url_not_valid_hint), Toast.LENGTH_SHORT).show()
         }
     }
 
