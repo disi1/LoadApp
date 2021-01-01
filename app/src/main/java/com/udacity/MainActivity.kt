@@ -1,27 +1,30 @@
 package com.udacity
 
 import android.app.DownloadManager
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.util.Log
+import android.util.Patterns
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NotificationCompat
+import com.udacity.utils.sendNotification
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
 
     private var downloadID: Long = 0
-
-    private lateinit var notificationManager: NotificationManager
-    private lateinit var pendingIntent: PendingIntent
-    private lateinit var action: NotificationCompat.Action
+    private var selectedRepo: String? = null
+    private var selectedOption: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +32,24 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+
+        download_options_radio_group.setOnCheckedChangeListener { _, checkedId ->
+            when(checkedId) {
+                R.id.glide_radio_button -> {
+                    selectedRepo = GLIDE
+                    selectedOption = "Glide"
+                }
+                R.id.udacity_radio_button -> {
+                    selectedRepo = UDACITY
+                    selectedOption = "LoadApp"
+                }
+
+                R.id.retrofit_radio_button -> {
+                    selectedRepo = RETROFIT
+                    selectedOption = "Retrofit"
+                }
+            }
+        }
 
         custom_button.setOnClickListener {
             download()
@@ -38,27 +59,93 @@ class MainActivity : AppCompatActivity() {
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+            val action = intent?.action
+
+            if(downloadID == id) {
+                if (action.equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
+                    val query = DownloadManager.Query().setFilterById(downloadID)
+                    val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                    val cursor = downloadManager.query(query)
+                    if (cursor.moveToFirst()) {
+                        if (cursor.count > 0) {
+                            val status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
+                            val title = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_TITLE))
+                            Log.i("aa", "title: $title")
+                            if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                               custom_button.setDownloadButtonState(ButtonState.Completed)
+                                sendNotification(title, "Success", context!!)
+                                cursor.close()
+                            } else {
+                               custom_button.setDownloadButtonState(ButtonState.Completed)
+                                sendNotification(title, "Fail", context!!)
+                                cursor.close()
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
     private fun download() {
-        val request =
-            DownloadManager.Request(Uri.parse(URL))
-                .setTitle(getString(R.string.app_name))
-                .setDescription(getString(R.string.app_description))
-                .setRequiresCharging(false)
-                .setAllowedOverMetered(true)
-                .setAllowedOverRoaming(true)
+        if(isNetworkAvailable(this)) {
+            if(custom_url_edit_text.text.toString().isNotEmpty()) {
+                if(isUrlValid(custom_url_edit_text.text.toString().toLowerCase(Locale.ROOT))) {
+                    val request = downloadFile(getString(R.string.custom_file), custom_url_edit_text.text.toString())
 
-        val downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
-        downloadID =
-            downloadManager.enqueue(request)// enqueue puts the download request in the queue.
+                    val downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
+                    downloadID =
+                            downloadManager.enqueue(request)// enqueue puts the download request in the queue.
+                } else {
+                    Toast.makeText(this, getString(R.string.url_not_valid_hint), Toast.LENGTH_SHORT).show()
+                }
+            }
+            else if(selectedRepo != null) {
+                custom_button.setDownloadButtonState(ButtonState.Loading)
+
+                val request = downloadFile(selectedOption!!, selectedRepo!!)
+
+                val downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
+                downloadID =
+                        downloadManager.enqueue(request)// enqueue puts the download request in the queue.
+            } else {
+                custom_button.setDownloadButtonState(ButtonState.Completed)
+                Toast.makeText(this, R.string.no_selection_hint, Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(this, R.string.network_unavailable_hint, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun isUrlValid(url: String) =
+            Patterns.WEB_URL.matcher(url).matches()
+
+    private fun downloadFile(fileTitle: String, url: String) = DownloadManager.Request(Uri.parse(url))
+            .setTitle(fileTitle)
+            .setDescription(getString(R.string.app_description))
+            .setRequiresCharging(false)
+            .setAllowedOverMetered(true)
+            .setAllowedOverRoaming(true)
+
+    private fun isNetworkAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return when {
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) -> true
+            else -> false
+        }
     }
 
     companion object {
-        private const val URL =
+        private const val UDACITY =
             "https://github.com/udacity/nd940-c3-advanced-android-programming-project-starter/archive/master.zip"
-        private const val CHANNEL_ID = "channelId"
+        private const val GLIDE =
+            "https://github.com/bumptech/glide/archive/master.zip"
+        private const val RETROFIT =
+            "https://github.com/square/retrofit/archive/master.zip"
     }
-
 }

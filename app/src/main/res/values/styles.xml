@@ -6,6 +6,11 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="downloadBtnBckgColorDefaultState">@color/colorPrimary</item>
+        <item name="downloadBtnBckgColorLoadingState">@color/colorPrimaryDark</item>
+        <item name="downloadBtnCircleColor">@color/colorAccent</item>
+        <item name="downloadBtnTextColor">@color/white</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

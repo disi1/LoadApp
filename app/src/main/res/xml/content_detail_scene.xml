@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ConstraintSet android:id="@+id/start">
+        <Constraint
+            android:id="@+id/file_name_label">
+            <PropertySet android:alpha="0.0" />
+        </Constraint>
+        <Constraint
+            android:id="@+id/download_status_label">
+            <PropertySet android:alpha="0.0" />
+        </Constraint>
+        <Constraint
+            android:id="@+id/file_name_value">
+            <PropertySet android:alpha="0.0" />
+        </Constraint>
+        <Constraint
+            android:id="@+id/download_status_value">
+            <PropertySet android:alpha="0.0" />
+        </Constraint>
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/end">
+        <Constraint
+            android:id="@id/file_name_label">
+            <PropertySet android:alpha="1.0" />
+        </Constraint>
+        <Constraint
+            android:id="@id/download_status_label">
+            <PropertySet android:alpha="1.0" />
+        </Constraint>
+        <Constraint
+            android:id="@id/file_name_value">
+            <PropertySet android:alpha="1.0" />
+        </Constraint>
+        <Constraint
+            android:id="@id/download_status_value">
+            <PropertySet android:alpha="1.0" />
+        </Constraint>
+    </ConstraintSet>
+
+    <Transition
+        app:autoTransition="animateToEnd"
+        app:constraintSetEnd="@id/end"
+        app:constraintSetStart="@+id/start"
+        app:duration="2500">
+
+        <KeyFrameSet>
+            <KeyAttribute
+                app:framePosition="25"
+                app:motionTarget="@id/file_name_label"
+                android:alpha="1.0"
+                />
+            <KeyAttribute
+                app:framePosition="25"
+                app:motionTarget="@id/file_name_value"
+                android:alpha="0.0"
+                />
+            <KeyAttribute
+                app:framePosition="50"
+                app:motionTarget="@id/file_name_value"
+                android:alpha="1.0"
+                />
+
+            <KeyAttribute
+                app:framePosition="50"
+                app:motionTarget="@id/download_status_label"
+                android:alpha="0.0"
+                />
+            <KeyAttribute
+                app:framePosition="75"
+                app:motionTarget="@id/download_status_label"
+                android:alpha="1.0"
+                />
+
+            <KeyAttribute
+                app:framePosition="75"
+                app:motionTarget="@id/download_status_value"
+                android:alpha="0.0"
+                />
+
+        </KeyFrameSet>
+    </Transition>
+</MotionScene>
