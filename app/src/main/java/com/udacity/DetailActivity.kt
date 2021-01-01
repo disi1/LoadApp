@@ -31,6 +31,7 @@ class DetailActivity : AppCompatActivity() {
             "LoadApp" -> file_name_value.text = getString(R.string.load_app_text)
             "Glide" -> file_name_value.text = getString(R.string.glide_text)
             "Retrofit" -> file_name_value.text = getString(R.string.retrofit_text)
+            else -> file_name_value.text = getString(R.string.file_from_custom_url)
         }
 
         when(downloadStatus) {

@@ -5,14 +5,17 @@
 
 
     <string name="notification_title">Udacity: Android Kotlin Nanodegree </string>
-    <string name="notification_description">The %1$s repository is downloaded</string>
+    <string name="notification_description">%1$s repository download %2$s</string>
+    <string name="custom_file_notification_description">%1$s download %2$s</string>
     <string name="notification_button">See changes</string>
     <string name="repo_download_channel_description">Repository download</string>
     <string name="repo_download_channel_id">repository_download_channel</string>
     <string name="repo_download_channel_name">Repository download</string>
 
     <string name="download">Download</string>
-    <string name="no_selection_hint">Please select the file to download</string>
+    <string name="no_selection_hint">Please select the file to download or provide a URL of your choice.</string>
+    <string name="network_unavailable_hint">Network not available!\nCheck your internet connection and try again.</string>
+    <string name="url_not_valid_hint">The provided URL is not valid.\nUse a valid URL and try again.</string>
     <string name="button_name">Click me</string>
     <string name="button_loading">We are loading </string>
     <string name="title_activity_detail">DetailActivity</string>
@@ -24,4 +27,9 @@
     <string name="check_status_button">Check the status</string>
     <string name="file_name_label">File name:</string>
     <string name="status_label">Status:</string>
+    <string name="file_from_custom_url">File from custom URL</string>
+    <string name="custom_file">Custom file</string>
+    <string name="choose_repository">Choose one of the following repositories</string>
+    <string name="or_provide_a_custom_url">Or provide a custom URL</string>
+    <string name="https_example_com">https://example.com…</string>
 </resources>

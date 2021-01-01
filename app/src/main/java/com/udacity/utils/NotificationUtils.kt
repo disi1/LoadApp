@@ -32,13 +32,28 @@ fun sendNotification(fileName: String, downloadStatus: String, context: Context)
     )
 
     // Create the notification
+    var notificationDescription = ""
+    when(fileName) {
+        context.getString(R.string.custom_file) -> {
+            when(downloadStatus) {
+                "Success" -> notificationDescription = context.getString(R.string.custom_file_notification_description, fileName, "complete")
+                "Fail" -> notificationDescription = context.getString(R.string.custom_file_notification_description, fileName, "failed")
+            }
+        } else -> {
+        when(downloadStatus) {
+            "Success" -> notificationDescription = context.getString(R.string.notification_description, fileName, "complete")
+            "Fail" -> notificationDescription = context.getString(R.string.notification_description, fileName, "failed")
+        }
+        }
+    }
+
     val builder = NotificationCompat.Builder(
             context,
             context.getString(R.string.repo_download_channel_id)
     )
             .setSmallIcon(R.drawable.ic_assistant_black_24dp)
             .setContentTitle(context.getString(R.string.notification_title))
-            .setContentText(context.getString(R.string.notification_description, fileName))
+            .setContentText(notificationDescription)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .addAction(
